@@ -3,9 +3,12 @@ var name = "";
 
 var loginInput = document.querySelector('#loginInput');
 var loginBtn = document.querySelector('#loginBtn');
+
 var otherUsernameInput = document.querySelector('#otherUsernameInput');
 var connectToOtherUsernameBtn = document.querySelector('#connectToOtherUsernameBtn');
-var connectedUser, myConnection;
+var msgInput = document.querySelector('#msgInput');
+var sendMsgBtn = document.querySelector('#sendMsgBtn');
+var connectedUser, myConnection, dataChannel;
 
 
 
@@ -72,6 +75,8 @@ function onLogin(success) {
                 });
             }
         };
+
+        openDataChannel();
     }
 };
 
@@ -142,3 +147,28 @@ function onAnswer(answer) {
 function onCandidate(candidate) {
     myConnection.addIceCandidate(new RTCIceCandidate(candidate));
 }
+
+//creating data channel
+function openDataChannel() {
+
+    var dataChannelOptions = {
+        reliable:true
+    };
+
+    dataChannel = myConnection.createDataChannel("myDataChannel", dataChannelOptions);
+
+    dataChannel.onerror = function (error) {
+        console.log("Error:", error);
+    };
+
+    dataChannel.onmessage = function (event) {
+        console.log("Got message:", event.data);
+    };
+}
+
+//when a user clicks the send message button
+sendMsgBtn.addEventListener("click", function (event) {
+    console.log("send message");
+    var val = msgInput.value;
+    dataChannel.send(val);
+});
